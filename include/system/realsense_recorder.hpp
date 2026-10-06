@@ -46,8 +46,8 @@ private:
     std::string name_;
     bool        running_ = false;
 
-    ReliableSubscriber<kist_msgs::CompressedColorFrame, H264ColorFrame> color_sub_;
-    ReliableSubscriber<kist_msgs::CompressedDepthFrame, RvlDepthFrame>  depth_sub_;
+    ReliableSubscriber<kist_msgs::msg::dds_::CompressedColorFrame_, H264ColorFrame> color_sub_;
+    ReliableSubscriber<kist_msgs::msg::dds_::CompressedDepthFrame_, RvlDepthFrame>  depth_sub_;
 
     BlobRecorder<H264ColorFrame> color_rec_;
     BlobRecorder<RvlDepthFrame>  depth_rec_;

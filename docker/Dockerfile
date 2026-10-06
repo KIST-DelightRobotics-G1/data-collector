@@ -67,11 +67,12 @@ WORKDIR /workspace/kist-data-collector
 # --build-arg) to move to a newer upstream.
 # Placed before COPY so source edits don't re-clone; .dockerignore keeps any
 # local working copy out of the build context so this pinned clone wins.
-ARG EXT_SENSOR_IO_REPO=https://github.com/Safety-Node/kist-ext-sensor-io.git
-# 94848e6: depth frames now carry camera intrinsics (fx/fy/cx/cy) — the
-# CompressedDepthFrame IDL grew four fields, so the collector must build
-# against this ext to stay wire-compatible with the transmitter.
-ARG EXT_SENSOR_IO_COMMIT=94848e6989d1b10a36aa2651e9c91375e2875972
+ARG EXT_SENSOR_IO_REPO=https://github.com/KIST-DelightRobotics-G1/ext-sensor-io.git
+# 143d22c: frame types now live under their ROS 2 wire names
+# (kist_msgs::msg::dds_::<Name>_) so ROS 2 nodes subscribe directly — the
+# collector's subscribers were renamed to match; older ext transmitters
+# (pre-48c6ca9) no longer match this collector.
+ARG EXT_SENSOR_IO_COMMIT=143d22caae0a557cc127ba91f0029c97a6028ade
 RUN git clone "${EXT_SENSOR_IO_REPO}" thirdparty/kist-ext-sensor-io && \
     git -C thirdparty/kist-ext-sensor-io checkout "${EXT_SENSOR_IO_COMMIT}"
 

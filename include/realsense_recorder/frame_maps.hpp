@@ -12,7 +12,7 @@
 
 namespace kist {
 
-inline H264ColorFrame map_color(const kist_msgs::CompressedColorFrame& msg) {
+inline H264ColorFrame map_color(const kist_msgs::msg::dds_::CompressedColorFrame_& msg) {
     H264ColorFrame f;
     f.width       = int(msg.width());
     f.height      = int(msg.height());
@@ -24,7 +24,7 @@ inline H264ColorFrame map_color(const kist_msgs::CompressedColorFrame& msg) {
     return f;
 }
 
-inline RvlDepthFrame map_depth(const kist_msgs::CompressedDepthFrame& msg) {
+inline RvlDepthFrame map_depth(const kist_msgs::msg::dds_::CompressedDepthFrame_& msg) {
     RvlDepthFrame f;
     f.width       = int(msg.width());
     f.height      = int(msg.height());

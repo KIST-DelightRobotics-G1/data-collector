@@ -1,7 +1,7 @@
 # kist-data-collector
 
 Storage-side recorder for the KIST G1 — records the
-[kist-ext-sensor-io](https://github.com/Safety-Node/kist-ext-sensor-io)
+[ext-sensor-io](https://github.com/KIST-DelightRobotics-G1/ext-sensor-io)
 cameras (H.264 color + RVL depth), `rt/lowstate` and the Dex3 hands into one
 **lossless** session. Exporters turn a session into videos or training images.
 
@@ -13,7 +13,7 @@ cameras (H.264 color + RVL depth), `rt/lowstate` and the Dex3 hands into one
 
 | Component | Version | Role |
 |---|---|---|
-| `kist-ext-sensor-io` | `a8de3ae` | camera wire contract (`kist_msgs` IDL, frame structs, topic names) + RVL depth decoder |
+| `ext-sensor-io` | `143d22c` | camera wire contract (`kist_msgs` IDL, frame structs, topic names) + RVL depth decoder |
 | `unitree_sdk2` | `21d0a3b` | DDS client (lowstate / Dex3 subscribers), `hg` IDL types, bundled ddsc/ddscxx runtime |
 | CycloneDDS + CycloneDDS-CXX | 0.10.2 | `idlc`/`idlcxx` codegen for the camera DDS types |
 | `yaml-cpp` | distro | config parsing |
@@ -28,8 +28,8 @@ image build (see Build).
 #### 1. Clone Repository
 
 ```bash
-git clone https://github.com/Safety-Node/kist-data-collector.git
-cd kist-data-collector
+git clone https://github.com/KIST-DelightRobotics-G1/data-collector.git
+cd data-collector
 ```
 
 All following steps run from the repository root.
@@ -70,8 +70,8 @@ the SDK's bundled `libddscxx` — same recipe as kist-ext-sensor-io's README
 #### 4. Clone the pinned thirdparty repos
 
 ```bash
-git clone https://github.com/Safety-Node/kist-ext-sensor-io.git thirdparty/kist-ext-sensor-io
-git -C thirdparty/kist-ext-sensor-io checkout a8de3ae293ab55354fc28b054146f0d040ca7e55
+git clone https://github.com/KIST-DelightRobotics-G1/ext-sensor-io.git thirdparty/kist-ext-sensor-io
+git -C thirdparty/kist-ext-sensor-io checkout 143d22caae0a557cc127ba91f0029c97a6028ade
 
 git clone https://github.com/unitreerobotics/unitree_sdk2.git \
     thirdparty/kist-ext-sensor-io/thirdparty/unitree_sdk2
