@@ -4,7 +4,7 @@
 // subscribes a LowCmd_ topic and rows every message into a CSV via
 // RowRecorder:
 //
-//   [DDS rt/lowcmd | rt/arm_sdk] --callback--> [RowRecorder] -> <csv_name>
+//   [DDS rt/lowcmd | rt/arm_sdk] --take-thread--> [RowRecorder] -> <csv_name>
 //
 // rt/lowcmd (low-level control) and rt/arm_sdk (arm control while the
 // loco controller holds the legs) carry the SAME unitree_hg LowCmd_ type,
@@ -13,15 +13,13 @@
 // loss (columns: unitree_recorder/lowcmd_rows.hpp).
 
 #include "common/row_recorder.hpp"
+#include "common/waitset_subscriber.hpp"
 
 #include <unitree/idl/hg/LowCmd_.hpp>
 
 #include <memory>
 #include <string>
 
-namespace unitree::robot {
-template <typename T> class ChannelSubscriber;
-}
 
 namespace kist {
 
@@ -49,12 +47,11 @@ public:
     const std::string& label() const { return label_; }
     StreamStats stats() const { return rec_.stats(); }
 
-    // internal: DDS callback
+    // internal: per-sample handler (take-thread)
     void on_lowcmd(const void* message);
 
 private:
-    using Sub = unitree::robot::ChannelSubscriber<unitree_hg::msg::dds_::LowCmd_>;
-    std::unique_ptr<Sub> sub_;
+    WaitsetSubscriber<unitree_hg::msg::dds_::LowCmd_> sub_;
 
     RowRecorder<unitree_hg::msg::dds_::LowCmd_> rec_;
     std::string label_;

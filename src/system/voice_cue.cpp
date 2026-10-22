@@ -1,6 +1,7 @@
 #include "system/voice_cue.hpp"
 #include "system/voice_wav.hpp"
 
+#include <unitree/robot/channel/channel_factory.hpp>
 #include <unitree/robot/g1/audio/g1_audio_client.hpp>
 
 #include <chrono>
@@ -36,7 +37,7 @@ VoiceCuePlayer::Settings VoiceCuePlayer::Settings::from_yaml(const YAML::Node& r
 VoiceCuePlayer::VoiceCuePlayer() = default;
 VoiceCuePlayer::~VoiceCuePlayer() { stop(); }
 
-bool VoiceCuePlayer::start(const Settings& settings) {
+bool VoiceCuePlayer::start(const Settings& settings, int domain_id) {
     if (running_) return true;
     settings_ = settings;
     if (!settings_.enabled) return false;
@@ -59,6 +60,8 @@ bool VoiceCuePlayer::start(const Settings& settings) {
     }
 
     try {
+        // Safe when something else already initialized the factory.
+        unitree::robot::ChannelFactory::Instance()->Init(domain_id, /*network_interface=*/"");
         client_.reset(new unitree::robot::g1::AudioClient());
         client_->SetTimeout(static_cast<float>(settings_.timeout_s));
         client_->Init();

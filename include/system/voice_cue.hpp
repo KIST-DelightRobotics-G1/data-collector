@@ -43,11 +43,11 @@ public:
     VoiceCuePlayer();
     ~VoiceCuePlayer();
 
-    // Loads the WAVs and creates the AudioClient. ChannelFactory must already
-    // be initialized (the record command listener does that). Returns false
-    // when disabled or when no cue could be loaded — the caller carries on
-    // without voice either way.
-    bool start(const Settings& settings);
+    // Loads the WAVs and creates the AudioClient on the SDK's ChannelFactory
+    // (initialized here for domain_id; the NIC comes from CYCLONEDDS_URI).
+    // Returns false when disabled or when no cue could be loaded — the
+    // caller carries on without voice either way.
+    bool start(const Settings& settings, int domain_id);
     void say(VoiceCue cue);   // non-blocking; dropped when not started
     void stop();              // plays what is queued, then joins the worker
 

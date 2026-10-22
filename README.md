@@ -178,3 +178,12 @@ alternatives considered: [docs/storage-format.md](docs/storage-format.md).
   The same `<seq>` in both names is the same captured frame.
 
 Both convert every camera in the session at once.
+
+```bash
+./build/session_stats    [sessions_root] [--list] [--csv FILE]   # per-task success / fail / partial counts
+./build/session_organize [sessions_root]                        # move <YYYYMMDD_HHMMSS>/ into <YYYYMMDD>/<task name>/
+```
+
+`session_organize` asks a short folder name the first time it meets a task
+text and keeps it in `<sessions_root>/tasks.txt` (`<name>: <task text>`, editable
+beforehand); `session_stats` shows tasks under the same names.

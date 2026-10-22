@@ -4,22 +4,20 @@
 // subscribes the G1's rt/lowstate (unitree_hg LowState_, ~1 kHz) and rows
 // every message into <session_dir>/lowstate.csv via RowRecorder:
 //
-//   [DDS rt/lowstate] --callback--> [RowRecorder] -> lowstate.csv
+//   [DDS rt/lowstate] --take-thread--> [RowRecorder] -> lowstate.csv
 //
 // Columns: recv_ns (this host's arrival clock, the cross-stream alignment
 // column), tick + modes, IMU (quaternion/gyro/accel/rpy/temp), and per-motor
 // q/dq/ddq/tau_est for all 35 slots. One instance per robot (there is one).
 
 #include "common/row_recorder.hpp"
+#include "common/waitset_subscriber.hpp"
 
 #include <unitree/idl/hg/LowState_.hpp>
 
 #include <memory>
 #include <string>
 
-namespace unitree::robot {
-template <typename T> class ChannelSubscriber;
-}
 
 namespace kist {
 
@@ -42,12 +40,11 @@ public:
 
     StreamStats stats() const { return rec_.stats(); }
 
-    // internal: DDS callback
+    // internal: per-sample handler (take-thread)
     void on_lowstate(const void* message);
 
 private:
-    using Sub = unitree::robot::ChannelSubscriber<unitree_hg::msg::dds_::LowState_>;
-    std::unique_ptr<Sub> sub_;
+    WaitsetSubscriber<unitree_hg::msg::dds_::LowState_> sub_;
 
     RowRecorder<unitree_hg::msg::dds_::LowState_> rec_;
     bool running_ = false;

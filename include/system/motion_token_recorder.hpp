@@ -2,7 +2,7 @@
 
 // Motion-token recording assembly — gearsonic's decoder-input token stream:
 //
-//   [DDS rt/kist/motion_token] --callback--> [RowRecorder] -> motion_token.csv
+//   [DDS rt/kist/motion_token] --take-thread--> [RowRecorder] -> motion_token.csv
 //
 // The stream is silent while the robot is outside CONTROL (INIT ramp,
 // damping, e-stop): time/seq gaps = not controlled, not loss. Owns its
@@ -10,15 +10,13 @@
 // other row streams (columns: gearsonic_recorder/motion_token_rows.hpp).
 
 #include "common/row_recorder.hpp"
+#include "common/waitset_subscriber.hpp"
 
 #include "kist_msgs.hpp"
 
 #include <memory>
 #include <string>
 
-namespace unitree::robot {
-template <typename T> class ChannelSubscriber;
-}
 
 namespace kist {
 
@@ -38,12 +36,11 @@ public:
 
     StreamStats stats() const { return rec_.stats(); }
 
-    // internal: DDS callback
+    // internal: per-sample handler (take-thread)
     void on_token(const void* message);
 
 private:
-    using Sub = unitree::robot::ChannelSubscriber<kist_msgs::MotionTokenState>;
-    std::unique_ptr<Sub> sub_;
+    WaitsetSubscriber<kist_msgs::MotionTokenState> sub_;
 
     RowRecorder<kist_msgs::MotionTokenState> rec_;
     bool running_ = false;
