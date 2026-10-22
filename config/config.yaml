@@ -88,3 +88,23 @@ dex3_cmd:
 motion_token:
   enabled: true
   queue_capacity: 4096
+
+# Remote recording control (default on): the process starts idle and waits
+# for kist_msgs::RecordCommand on rt/kist/record_cmd, published by
+# kist-gearsonic-inference from the VR controller — B tap = start, B
+# double-tap = stop, then A tap = success / A double-tap = fail / A triple-tap
+# = partial (keep, but not a clean success). One process
+# records any number of episodes. Set false for the legacy flow (record from
+# launch, Ctrl-C to stop, S/F/P keypress to label).
+record_control:
+  enabled: true
+  # Korean voice cue on the robot's own speaker (Unitree audio service over
+  # DDS, like cortex's speaker_node) when an episode starts / stops / gets
+  # its label — the VR pilot hears the collector's state without a terminal.
+  voice:
+    enabled: true
+    dir: assets/voice            # <dir>/{start,stop,success,fail,partial}.wav — 16 kHz mono 16-bit
+    app_name: kist_data_collector
+    timeout_s: 2.0               # per-cue reply wait from the audio service
+    play_margin_s: 0.2           # gap kept between consecutive cues
+    gain: 0.5                    # loudness 0..1 (scales the samples; robot volume untouched)

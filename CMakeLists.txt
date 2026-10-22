@@ -80,6 +80,16 @@ add_library(kist_msgs_idl STATIC ${KIST_MSGS_GEN}/kist_msgs.cpp)
 target_include_directories(kist_msgs_idl PUBLIC ${KIST_MSGS_GEN})
 target_link_libraries(kist_msgs_idl PUBLIC unitree_sdk2)
 
+# Remote recording control: rt/kist/record_cmd (gearsonic VR buttons) -> episode FSM
+add_library(record_control STATIC src/system/record_command_listener.cpp)
+target_include_directories(record_control PUBLIC include)
+target_link_libraries(record_control PUBLIC kist_msgs_idl)
+
+# Voice cues on the robot speaker (Unitree AudioClient, assets/voice/*.wav).
+add_library(voice_cue STATIC src/system/voice_cue.cpp)
+target_include_directories(voice_cue PUBLIC include)
+target_link_libraries(voice_cue PUBLIC unitree_sdk2 yaml-cpp)
+
 add_library(gearsonic_recorder STATIC src/system/motion_token_recorder.cpp)
 target_include_directories(gearsonic_recorder PUBLIC include)
 target_link_libraries(gearsonic_recorder PUBLIC kist_msgs_idl recorder_common)
@@ -95,8 +105,16 @@ target_link_libraries(data_collector
 
 # ─── runners ──────────────────────────────────────────────────────────────────
 # Main collector: config -> DataCollector, report loop, stop on signal.
-add_executable(kist_data_collector src/main.cpp)
-target_link_libraries(kist_data_collector PRIVATE data_collector)
+add_executable(kist-data-collector src/main.cpp)
+target_link_libraries(kist-data-collector PRIVATE data_collector record_control voice_cue)
+
+# header-only episode state machine — no link dependencies
+add_executable(test_record_fsm test/test_record_fsm.cpp)
+target_include_directories(test_record_fsm PRIVATE include)
+
+# header-only WAV reader + the shipped cues (run from the repo root)
+add_executable(test_voice_wav test/test_voice_wav.cpp)
+target_include_directories(test_voice_wav PRIVATE include)
 
 # ─── tests ────────────────────────────────────────────────────────────────────
 # One-stream isolation runners — each drives its recorder assembly directly

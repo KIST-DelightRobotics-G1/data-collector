@@ -102,13 +102,21 @@ Set up the config once before recording:
 - All keys: [docs/configuration.md](docs/configuration.md).
 
 ```bash
-./build/kist_data_collector
+./build/kist-data-collector
 ```
 
-Records until Ctrl-C into `sessions/<timestamp>/`, printing per-stream
-status once a second; the final counters land in `meta.yaml`. After the
-stop drains, one keypress labels the episode — `S` = success, `F` = fail
-(Ctrl-C again skips) — written to `meta.yaml` as `result: success|fail`.
+Starts idle and records episodes on command from the VR controller (via
+kist-gearsonic-inference, `rt/kist/record_cmd`): **B tap** starts a session
+`sessions/<timestamp>/`, **B double-tap** stops it, then **A tap** labels it
+success / **A double-tap** fail / **A triple-tap** partial — kept, but not a
+clean success (`meta.yaml` `result:`). B tap while a label
+is pending starts the next episode and leaves the previous one unlabeled.
+Each event is also spoken on the robot's speaker (`assets/voice/*.wav`, off
+with `record_control.voice.enabled: false`).
+Per-stream status prints once a second while recording; Ctrl-C exits (a
+recording in progress is closed first and can be labeled with one keypress,
+`S` / `F` / `P`). `record_control.enabled: false` restores the legacy flow:
+record from launch, Ctrl-C to stop, `S` / `F` / `P` to label.
 
 To record a single stream in isolation (same session layout, that stream
 only — regardless of its `enabled` flag in the config; cameras still follow
