@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
     if (remote) {
         if (!listener.start(settings.domain_id, /*network_interface=*/""))
             return 1;
-        voice.start(kist::VoiceCuePlayer::Settings::from_yaml(rc));   // optional: runs silent when off
+        voice.start(kist::VoiceCuePlayer::Settings::from_yaml(rc), settings.domain_id);   // optional
         std::printf("[kist_data_collector] idle — waiting for %s (VR: B tap start, B double-tap stop, "
                     "A tap success / double-tap fail / triple-tap partial). Ctrl-C exits.\n", kist::kRecordCmdTopic);
     } else {

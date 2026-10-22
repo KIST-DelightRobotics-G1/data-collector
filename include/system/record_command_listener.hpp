@@ -1,9 +1,10 @@
 #pragma once
 // DDS intake for rt/kist/record_cmd (kist_msgs::RecordCommand, published by
-// kist-gearsonic-inference from the VR controller's A/B taps). The DDS
-// callback only queues the action; the runner's main loop drains the queue
+// kist-gearsonic-inference from the VR controller's A/B taps). The take-
+// thread only queues the action; the runner's main loop drains the queue
 // and drives record_control.hpp's state machine. Duplicate/old seq are
 // dropped.
+#include "common/waitset_subscriber.hpp"
 #include "system/record_control.hpp"
 #include "kist_msgs.hpp"
 
@@ -14,10 +15,6 @@
 #include <string>
 #include <vector>
 
-namespace unitree::robot {
-template <typename T> class ChannelSubscriber;
-}
-
 namespace kist {
 
 inline constexpr const char* kRecordCmdTopic = "rt/kist/record_cmd";
@@ -27,18 +24,18 @@ public:
     RecordCommandListener();
     ~RecordCommandListener();
 
+    // network_interface is informational: the NIC comes from CYCLONEDDS_URI.
     bool start(int domain_id, const std::string& network_interface);
     void stop();
 
     // All actions received since the last call, in arrival order.
     std::vector<RecordAction> drain();
 
-    // internal: DDS callback
-    void on_command(const void* message);
+    // internal: per-sample handler (take-thread)
+    void on_command(const kist_msgs::RecordCommand& m);
 
 private:
-    using Sub = unitree::robot::ChannelSubscriber<kist_msgs::RecordCommand>;
-    std::unique_ptr<Sub>      sub_;
+    WaitsetSubscriber<kist_msgs::RecordCommand> sub_;
     std::mutex                mutex_;
     std::deque<RecordAction>  queue_;
     uint64_t                  last_seq_ = 0;

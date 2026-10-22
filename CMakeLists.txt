@@ -116,6 +116,14 @@ target_include_directories(test_record_fsm PRIVATE include)
 add_executable(test_voice_wav test/test_voice_wav.cpp)
 target_include_directories(test_voice_wav PRIVATE include)
 
+# per-task success/fail/partial counts over recorded sessions (meta.yaml only)
+add_executable(session_stats tools/session_stats.cpp)
+target_include_directories(session_stats PRIVATE include)
+
+# files flat sessions into <date>/<task name>/ (names kept in <root>/tasks.txt)
+add_executable(session_organize tools/session_organize.cpp)
+target_include_directories(session_organize PRIVATE include)
+
 # ─── tests ────────────────────────────────────────────────────────────────────
 # One-stream isolation runners — each drives its recorder assembly directly
 # (own session dir, report, drain). Also the embedding reference per stream.

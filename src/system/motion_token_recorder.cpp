@@ -2,8 +2,6 @@
 
 #include "gearsonic_recorder/motion_token_rows.hpp"
 
-#include <unitree/robot/channel/channel_factory.hpp>
-#include <unitree/robot/channel/channel_subscriber.hpp>
 
 #include <filesystem>
 #include <iostream>
@@ -25,14 +23,11 @@ bool MotionTokenRecorder::start(int domain_id, const std::string& network_interf
         return false;
     }
 
-    try {
-        // Safe when the embedding process already initialized the factory.
-        unitree::robot::ChannelFactory::Instance()->Init(domain_id, network_interface);
-        sub_.reset(new Sub(kMotionTokenTopic));
-        sub_->InitChannel([this](const void* msg) { on_token(msg); }, 16);
-    } catch (const std::exception& e) {
-        std::cerr << "[MotionTokenRecorder] DDS init failed on interface \""
-                  << network_interface << "\": " << e.what() << "\n";
+    // Waitset reader (no listener — see common/waitset_subscriber.hpp); the
+    // NIC comes from CYCLONEDDS_URI, so network_interface is informational.
+    if (!sub_.start(domain_id, kMotionTokenTopic, /*depth=*/64,
+                    [this](const kist_msgs::MotionTokenState& m) { on_token(&m); })) {
+        std::cerr << "[MotionTokenRecorder] DDS reader failed on " << kMotionTokenTopic << "\n";
         rec_.close();
         return false;
     }
@@ -45,7 +40,7 @@ bool MotionTokenRecorder::start(int domain_id, const std::string& network_interf
 }
 
 void MotionTokenRecorder::stop() {
-    sub_.reset();
+    sub_.stop();         // take-thread joined, reader closed — no more pushes
     rec_.close();
     running_ = false;
 }

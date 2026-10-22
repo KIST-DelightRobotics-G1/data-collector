@@ -3,7 +3,7 @@
 // Dex3 hand-command recording assembly — the action twin of Dex3Recorder,
 // one instance per hand:
 //
-//   [DDS rt/dex3/<side>/cmd] --callback--> [RowRecorder] -> hand_cmd_<side>.csv
+//   [DDS rt/dex3/<side>/cmd] --take-thread--> [RowRecorder] -> hand_cmd_<side>.csv
 //
 // A command topic is silent while no hand controller publishes: time gaps
 // = no commands, not loss. Each instance owns its subscriber and its
@@ -11,15 +11,13 @@
 // recorders (columns: unitree_recorder/dex3_cmd_rows.hpp).
 
 #include "common/row_recorder.hpp"
+#include "common/waitset_subscriber.hpp"
 
 #include <unitree/idl/hg/HandCmd_.hpp>
 
 #include <memory>
 #include <string>
 
-namespace unitree::robot {
-template <typename T> class ChannelSubscriber;
-}
 
 namespace kist {
 
@@ -43,12 +41,11 @@ public:
     const std::string& side() const { return side_; }
     StreamStats stats() const { return rec_.stats(); }
 
-    // internal: DDS callback
+    // internal: per-sample handler (take-thread)
     void on_hand_cmd(const void* message);
 
 private:
-    using Sub = unitree::robot::ChannelSubscriber<unitree_hg::msg::dds_::HandCmd_>;
-    std::unique_ptr<Sub> sub_;
+    WaitsetSubscriber<unitree_hg::msg::dds_::HandCmd_> sub_;
 
     RowRecorder<unitree_hg::msg::dds_::HandCmd_> rec_;
     std::string side_;

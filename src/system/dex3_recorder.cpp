@@ -2,8 +2,6 @@
 
 #include "unitree_recorder/dex3_rows.hpp"
 
-#include <unitree/robot/channel/channel_factory.hpp>
-#include <unitree/robot/channel/channel_subscriber.hpp>
 
 #include <cstdio>
 #include <filesystem>
@@ -26,14 +24,11 @@ bool Dex3Recorder::start(int domain_id, const std::string& network_interface,
         return false;
     }
 
-    try {
-        // Safe when the embedding process already initialized the factory.
-        unitree::robot::ChannelFactory::Instance()->Init(domain_id, network_interface);
-        sub_.reset(new Sub(dex3_state_topic(side)));
-        sub_->InitChannel([this](const void* msg) { on_hand_state(msg); }, 16);
-    } catch (const std::exception& e) {
-        std::cerr << "[Dex3Recorder] DDS init failed on interface \""
-                  << network_interface << "\": " << e.what() << "\n";
+    // Waitset reader (no listener — see common/waitset_subscriber.hpp); the
+    // NIC comes from CYCLONEDDS_URI, so network_interface is informational.
+    if (!sub_.start(domain_id, dex3_state_topic(side), /*depth=*/64,
+                    [this](const unitree_hg::msg::dds_::HandState_& m) { on_hand_state(&m); })) {
+        std::cerr << "[Dex3Recorder] DDS reader failed on " << dex3_state_topic(side) << "\n";
         rec_.close();
         return false;
     }
@@ -46,7 +41,7 @@ bool Dex3Recorder::start(int domain_id, const std::string& network_interface,
 }
 
 void Dex3Recorder::stop() {
-    sub_.reset();
+    sub_.stop();         // take-thread joined, reader closed — no more pushes
     rec_.close();
     running_ = false;
 }

@@ -2,8 +2,6 @@
 
 #include "unitree_recorder/lowcmd_rows.hpp"
 
-#include <unitree/robot/channel/channel_factory.hpp>
-#include <unitree/robot/channel/channel_subscriber.hpp>
 
 #include <filesystem>
 #include <iostream>
@@ -25,15 +23,11 @@ bool LowcmdRecorder::start(int domain_id, const std::string& network_interface,
         return false;
     }
 
-    try {
-        // Safe when the embedding process already initialized the factory.
-        unitree::robot::ChannelFactory::Instance()->Init(domain_id, network_interface);
-        sub_.reset(new Sub(topic));
-        // Same reader history as lowstate: commands stream at up to ~1 kHz.
-        sub_->InitChannel([this](const void* msg) { on_lowcmd(msg); }, 16);
-    } catch (const std::exception& e) {
-        std::cerr << "[LowcmdRecorder] DDS init failed on interface \""
-                  << network_interface << "\": " << e.what() << "\n";
+    // Waitset reader (no listener — see common/waitset_subscriber.hpp); the
+    // NIC comes from CYCLONEDDS_URI, so network_interface is informational.
+    if (!sub_.start(domain_id, topic, /*depth=*/256,
+                    [this](const unitree_hg::msg::dds_::LowCmd_& m) { on_lowcmd(&m); })) {
+        std::cerr << "[LowcmdRecorder] DDS reader failed on " << topic << "\n";
         rec_.close();
         return false;
     }
@@ -45,7 +39,7 @@ bool LowcmdRecorder::start(int domain_id, const std::string& network_interface,
 }
 
 void LowcmdRecorder::stop() {
-    sub_.reset();
+    sub_.stop();         // take-thread joined, reader closed — no more pushes
     rec_.close();
     running_ = false;
 }

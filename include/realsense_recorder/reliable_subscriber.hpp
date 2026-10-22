@@ -19,8 +19,11 @@
 // KeepLast — the safety valve if a transmitter ever stops offering
 // RELIABLE (a reliable reader would then match nothing at all).
 //
-// All instances share one DomainParticipant, created on first use; it reads
-// CYCLONEDDS_URI, which main routes to config/cyclonedds.xml (NIC + buffers).
+// All instances share one DomainParticipant with the row streams'
+// WaitsetSubscriber (common/waitset_subscriber.hpp), created on first use; it
+// reads CYCLONEDDS_URI, which main routes to config/cyclonedds.xml.
+
+#include "common/waitset_subscriber.hpp"   // shared_dds_participant
 
 #include <dds/dds.hpp>
 
@@ -33,8 +36,7 @@
 namespace kist {
 
 inline dds::domain::DomainParticipant& reliable_dds_participant(int domain_id) {
-    static dds::domain::DomainParticipant dp{domain_id};
-    return dp;
+    return shared_dds_participant(domain_id);
 }
 
 template <typename MsgT, typename FrameT>
