@@ -94,3 +94,21 @@ config.yaml**.
 | `Internal/SocketReceiveBufferSize min` | `16MB` | UDP receive buffer size |
 | `Internal/DefragUnreliableMaxSamples` | `64` | concurrent defragmentation slots |
 | `Internal/DeliveryQueueMaxSamples` | `1024` | reader delivery queue depth |
+
+### `record_control`
+
+Remote episode control over DDS (`rt/kist/record_cmd`, `kist_msgs::RecordCommand`
+from kist-gearsonic-inference's VR buttons). With it enabled the process starts
+idle; B tap = start, B double-tap = stop, A tap = success, A double-tap = fail,
+A triple-tap = partial (kept, not a clean success).
+Commands that do not fit the current state are logged and ignored.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `enabled` | `true` | wait for commands; `false` = record from launch, Ctrl-C + S/F/P keypress |
+| `voice.enabled` | `true` | speak a Korean cue on the robot speaker at start / stop / label (Unitree audio service over DDS) |
+| `voice.dir` | `assets/voice` | `{start,stop,success,fail,partial}.wav`, 16 kHz mono 16-bit; a missing file silences that cue |
+| `voice.app_name` | `kist_data_collector` | AudioClient stream owner tag |
+| `voice.timeout_s` | `2.0` | reply wait per cue; failures are logged, recording is unaffected |
+| `voice.play_margin_s` | `0.2` | gap between consecutive cues |
+| `voice.gain` | `0.5` | loudness 0..1, applied to the samples (the robot's own volume setting is left alone) |
