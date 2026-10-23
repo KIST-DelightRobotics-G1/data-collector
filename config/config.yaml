@@ -18,6 +18,9 @@ storage:
 # description. Update it when the task changes.
 task: ""
 
+# Who is recording — lands in meta.yaml (`operator:`). Set it per operator.
+operator: ""
+
 # RealSense cameras (kist-ext-sensor-io transmitter -> blob+index files).
 # `enabled` switches the whole camera path; each camera may also carry its
 # own `enabled` (default true). `name` selects the rt/kist/camera/<name>/...

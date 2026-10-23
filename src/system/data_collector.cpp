@@ -60,6 +60,7 @@ DataCollector::Settings DataCollector::Settings::from_yaml(const YAML::Node& roo
         s.motion_token_queue_capacity = mt["queue_capacity"].as<size_t>(s.motion_token_queue_capacity);
     }
     s.task = root["task"] ? root["task"].as<std::string>("") : "";
+    s.operator_name = root["operator"] ? root["operator"].as<std::string>("") : "";
     return s;
 }
 
@@ -173,7 +174,7 @@ bool DataCollector::start(const Settings& settings) {
         return false;
     }
     session_write_meta(session_, settings_.domain_id, settings_.dds_uri, started,
-                       settings_.task);
+                       settings_.task, settings_.operator_name);
 
     last_cam_.assign(cameras_.size(), {});
     last_hand_.assign(hands_.size(), {0, 0});
@@ -187,6 +188,8 @@ bool DataCollector::start(const Settings& settings) {
                 session_.dir.c_str(), settings_.domain_id);
     if (!settings_.task.empty())
         std::printf("[kist_data_collector] task: %s\n", settings_.task.c_str());
+    if (!settings_.operator_name.empty())
+        std::printf("[kist_data_collector] operator: %s\n", settings_.operator_name.c_str());
     running_ = true;
     return true;
 }

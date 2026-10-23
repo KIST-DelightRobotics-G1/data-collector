@@ -45,7 +45,8 @@ SessionInfo session_create(const std::string& output_dir) {
 void session_write_meta(const SessionInfo& session, int domain_id,
                         const std::string& dds_config,
                         const std::vector<std::string>& cameras,
-                        const std::string& task) {
+                        const std::string& task,
+                        const std::string& operator_name) {
     std::ofstream f(std::filesystem::path(session.dir) / "meta.yaml", std::ios::trunc);
     f << "session:\n"
       << "  started_utc: " << format_time(session.started_ns, "%Y-%m-%dT%H:%M:%SZ", true) << "\n"
@@ -53,6 +54,7 @@ void session_write_meta(const SessionInfo& session, int domain_id,
       << "  domain_id: " << domain_id << "\n"
       << "  dds_config: " << dds_config << "\n"
       << "  task: \"" << task << "\"\n"
+      << "  operator: \"" << operator_name << "\"\n"
       << "cameras:\n";
     for (const auto& name : cameras)
         f << "  - " << name << "\n";
