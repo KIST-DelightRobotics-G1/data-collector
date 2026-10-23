@@ -5,7 +5,7 @@ file + one CSV index per stream** (this is what's implemented):
 
 ```
 sessions/<YYYYMMDD_HHMMSS>/
-  meta.yaml               # start/end (UTC + epoch ns), endpoint, per-stream counters,
+  meta.yaml               # start/end (UTC + epoch ns), endpoint, task, operator, per-stream counters,
                           #   operator label `result: success|fail|partial` (VR A tap /
                           #   double / triple via rt/kist/record_cmd, or S/F/P keypress;
                           #   absent = unlabeled; partial = keep, not a clean success)

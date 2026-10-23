@@ -25,6 +25,7 @@ inside the container (`nano` is installed) for a one-off.
 | Key | Default | Meaning |
 |---|---|---|
 | `task` | `""` | language instruction for the episodes recorded with this config — written into meta.yaml; the LeRobot/GR00T export uses it as the task description. Update it when the task changes (empty = warning at start) |
+| `operator` | `""` | who is recording — written into meta.yaml `operator:` |
 
 ### `realsense_cameras`
 

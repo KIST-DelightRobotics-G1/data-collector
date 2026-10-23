@@ -31,6 +31,8 @@ public:
         // recorded into meta.yaml; the LeRobot/GR00T export reads it as
         // the episode's task description.
         std::string task;
+        // Who is recording (config `operator:`) — recorded into meta.yaml.
+        std::string operator_name;
 
         std::vector<std::string> cameras;   // enabled camera names
         size_t camera_queue_capacity = 1024;
